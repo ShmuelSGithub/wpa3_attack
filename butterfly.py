@@ -8,10 +8,10 @@ q=63762351364972653564641699529205510489263266834182771617563631363277932854227
 def hash_to_group(password,id1,id2,token=None):
     label = "EAP-pwd" if token else "SAE"
     for counter in range(1, 256):
-        seed = hashlib.sha256("".join((str(token),str(id1),str(id2),str(password),str(counter))))
+        seed = hashlib.sha256("".join((str(token),str(id1),str(id2),str(password),str(counter))).encode("ascii"))
         value = KDF(seed, label + " Hunting and Pecking",p,p.bit_length())
         if value >= p: continue
-        P = pow(value,(p-1)/q,p)#fast modular exponentiation
+        P = pow(value,(p-1)//q,p)#fast modular exponentiation
         if P > 1: return P
 def KDF(K,label,context,length):
-    return "".join(hashlib.sha256("".join((str(K),str(label),str(context),str(i)))) for i in range((255+length)//256))[:length]
+    return int("".join(hashlib.sha256("".join((str(K),str(label),str(context),str(i))).encode("ascii")).hexdigest() for i in range((255+length)//256))[:(length+3)//4],16)
