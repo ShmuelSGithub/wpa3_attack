@@ -15,3 +15,14 @@ def hash_to_group(password,id1,id2,token=None):
         if P > 1: return P
 def KDF(K,label,context,length):
     return int("".join(hashlib.sha256("".join((str(K),str(label),str(context),str(i))).encode("ascii")).hexdigest() for i in range((255+length)//256))[:(length+3)//4],16)
+
+def timetest(inputs,iterations):
+    t=np.zeros([len(inputs),iterations],'int')
+    for i in range(iterations):
+        for j in range(len(inputs)):
+            t1=time.perf_counter_ns()
+            hash_to_group(inputs[j][0],inputs[j][1],inputs[j][2],None)
+            t2=time.perf_counter_ns()
+            t[j][i]=(t2-t1)//100
+    return t
+            
