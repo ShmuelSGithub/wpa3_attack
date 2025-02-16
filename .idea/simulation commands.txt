@@ -1,13 +1,16 @@
+//in ~/Downloads/hostap-wpa3-master/ , only if you need to install hostapd
 cd hostapd
 cp defconfig .config
 make -j 2
 cd ..
 
+//in ~/Downloads/hostap-wpa3-master/ , only if you need to install wpa_supplicant(note that hostapd and wpa_supplicant share a lot of code, so I almost always install both)
 cd wpa_supplicant
 cp defconfig .config
 make -j 2
 cd ..
 
+//doesn't matter where
 sudo modprobe mac80211_hwsim radios=3
 
 sudo systemctl stop NetworkManager.service
@@ -16,12 +19,16 @@ sudo macchanger --mac=00:11:00:00:00:00 wlan0
 sudo macchanger --mac=00:22:00:00:00:00 wlan1
 sudo macchanger --mac=00:33:00:00:00:00 wlan2
 
+//in ~/Downloads/hostap-wpa3-master/hostapd in its own window!
 sudo ~/Downloads/hostap-wpa3-master/hostapd/hostapd hostapd_wpa3.conf -dd -K
+
+//in ~/Downloads/hostap-wpa3-master/wpa_supplicant in its own window!
 sudo ~/Downloads/hostap-wpa3-master/wpa_supplicant/wpa_supplicant -D nl80211 -i wlan1 -c supp_wpa3.conf -dd -K
 
-
+//in ~/Downloads/dragondrain-and-time-master , only if you need to install dragontime
 autoreconf -i
 ./configure
 make
 
-sudo src/dragontime -d wlan2 -a 00:11:00:00:00:00 -c 1 -g 19 -i 250 -t 750 -o measurements.txt
+//in ~/Downloads/dragondrain-and-time-master
+sudo src/dragontime -d wlan2 -a 00:11:00:00:00:00 -c 1 -g 24 -i 250 -t 750 -o measurements.txt
