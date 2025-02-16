@@ -17,9 +17,9 @@ def qplot(df):
     #plt.show() if you don't wanna add anything else
 
 #the default case(password abcdefgh, 20 addresses) is 2, 1, 2, 1, 1, 1, 1, 2, 3, 1, 2, 3, 1, 1, 1, 1, 9, 1, 1, 2
-def min_iter(df,addrs=20):
+def min_iter(df,addrs=20,low=0.15,high=0.35):
     '''retuns a DataFrame list of minimum possible iterations for each address, reliebly identifies as long as there are no gaps with 0 addresses'''
-    q=pd.DataFrame([(j,t[1][t[0]==j].quantile(0.15),t[1][t[0]==j].quantile(0.35)) for j in range(addrs)])
+    q=pd.DataFrame([(j,t[1][t[0]==j].quantile(low),t[1][t[0]==j].quantile(high)) for j in range(addrs)])
     q[3]=0
     i=1
     while(not q[3].all() and i<256):
