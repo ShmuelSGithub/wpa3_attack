@@ -12,5 +12,6 @@ def data(path):
 
 def qplot(df):
     for j in range(20):
-        tmp=plt.plot(range(50),[df[1][df[0]==j].quantile(i/50) for i in range(50)])
-        #plt.show() if you don't wanna add anything else
+        tmp=plt.plot(range(50),[df[1][df[0]==j].quantile(i/50) for i in range(50)],label=j)
+    #plt.legend() if you care about which address matches which graph
+    #plt.show() if you don't wanna add anything else
