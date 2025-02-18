@@ -53,4 +53,4 @@ def iterations(df,addrs=20):
         q.loc[q[3]==i,4]=1+(floor-floor1)//itrtime#number of iterations estimate
         i+=1
     
-    return q[3].clip(lower=q[4])
+    return q[3].clip(lower=q[4])#pairwise max
