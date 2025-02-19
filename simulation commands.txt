@@ -31,4 +31,4 @@ autoreconf -i
 make
 
 //in ~/Downloads/dragondrain-and-time-master
-sudo src/dragontime -d wlan2 -a 00:11:00:00:00:00 -c 1 -g 24 -i 250 -t 750 -o measurements.txt
+sudo src/dragontime -d wlan2 -a 00:11:00:00:00:00 -c 1 -g 24 -i 50 -t 125 -o measurements.txt
