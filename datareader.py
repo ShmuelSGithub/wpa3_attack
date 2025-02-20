@@ -50,7 +50,7 @@ def iterations(df,addrs=20):
     q[4]=0
     while(i<=maxi):
         floor=(q[1][q[3]==i].sum()+q[2][q[3]==i].sum())/(2*(q[3]==i).sum())#average of average quntile of group i
-        q.loc[q[3]==i,4]=1+(floor-floor1)//itrtime#number of iterations estimate
+        q.loc[q[3]==i,4]=1+round((floor-floor1)/itrtime)#number of iterations estimate
         i+=1
     
     return q[3].clip(lower=q[4])#pairwise max
