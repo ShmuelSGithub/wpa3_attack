@@ -46,7 +46,7 @@ def iterations(df,addrs=20):
     itrtime=sum(itrtimelowhigh)/2
     i=4
     maxi=q[3].max()
-    floor1=qsums[0][1]/qsums[0][0]#average low quntile of 1 iteration addresses
+    floor1=(qsums[0][1]+qsums[0][2])/(2*qsums[0][0])#average of average quntile of 1 iteration addresses
     q[4]=0
     while(i<=maxi):
         floor=(q[1][q[3]==i].sum()+q[2][q[3]==i].sum())/(2*(q[3]==i).sum())#average of average quntile of group i
