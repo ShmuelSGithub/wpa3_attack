@@ -19,7 +19,7 @@ def extract_data(path):
 def qplot(df, addrs=20):
     for j in range(addrs):
         tmp = plt.plot(
-            range(2,100,2), [df["Time"][df["STA"] == j].quantile(i / 50) for i in range(50)], label=j
+            range(0,100,2), [df["Time"][df["STA"] == j].quantile(i / 50) for i in range(50)], label=j
         )
     # plt.legend() if you care about which address matches which graph
     # plt.show() if you don't wanna add anything else
@@ -69,11 +69,23 @@ def estimate_iter_time(qsums):
     return sum(itr_time_low_high) / 2
 
 
-def iterations(df, addrs=20):
-    """retuns a DataFrame list of iterations for each address, assuming there are addresses with 1,2,3 iterations"""
-   
-    addr_quantiles = min_iterations(df)
-
+def iterations(df, addrs=20,low=0.3,high=0.5,version=1,distance_threshold=10000):
+    """retuns a DataFrame list of iterations for each address, assuming there are addresses with 1,2,3 iterations
+version {1,2,3} decides which min_iterations is used
+distance_threshold is only used in version 3"""
+    if version==1:
+        addr_quantiles = min_iterations(df,addrs,low,high)
+    elif version==2:
+        addr_quantiles = min_iterations2(df,addrs,low,high)
+    elif version==3:
+        addr_quantiles = pd.DataFrame(#min_iterations3() doesn't use low,high but iterations() does so they are added here
+        [
+            (j, df["Time"][df["STA"] == j].quantile(low), df["Time"][df["STA"] == j].quantile(high))
+            for j in range(addrs)
+        ]
+        , columns=["STA", "Low Quantile", "High Quantile"]
+        )
+        addr_quantiles["min_iters"] = min_iterations3(df,addrs,distance_threshold)
     qsums = [
         ((addr_quantiles["min_iters"] == j).sum(), addr_quantiles["Low Quantile"][addr_quantiles["min_iters"] == j].sum(), addr_quantiles["High Quantile"][addr_quantiles["min_iters"] == j].sum())
         for j in (1, 2, 3)
@@ -136,4 +148,20 @@ but worse on data where addresses with different iterations are closer"""
         i += 1
     return addr_quantiles
 
-
+def min_iterations3(df, addrs=20,distance_threshold=10000):
+    """retuns a DataFrame list of minimum iterations preformed for each address using Agglomerative Clustering. this is a lower bound on the true number
+The algorithm starts with every point as a cluster, and recursively merges clusters in a way that minimizes the variance within clusters until all the clusters are further apart than the distance threshold"""
+    from sklearn.cluster import AgglomerativeClustering as agc
+    quantiles=[[df["Time"][df["STA"] == j].quantile(i / 50) for i in range(10,40)] for j in range(addrs)]#vectors of quntiles, without the outlier edges
+    labels=agc(n_clusters=None,distance_threshold=distance_threshold).fit_predict(quantiles)#returns array of labels for each observation
+    labels = pd.DataFrame(
+        [
+            (labels[j],sum(quantiles[j])/30)#average time for each address
+            for j in range(addrs)
+        ]
+        , columns=["Label","Average"]
+    )
+    labels['Average']=[labels['Average'][labels['Label']==labels['Label'][j]].mean() for j in range(addrs)]#average times for every cluster
+    sorted_avg=np.sort(labels["Average"].unique())#sorted to estimate minimum iteration count
+    labels["Label"]=[np.argwhere(sorted_avg==avg)[0][0]+1 for avg in labels["Average"]]#replacing labels with the order of averages
+    return labels["Label"]
